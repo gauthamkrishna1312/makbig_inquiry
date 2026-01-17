@@ -3,27 +3,40 @@ import gspread
 import os
 import datetime
 import traceback
+import json
 
-app = Flask(__name__, template_folder='.')
-app.secret_key = 'supersecretkey'  # Needed for flash messages
+# Adjust template_folder and static_folder because this file is inapi/
+# and templates/static are likely in the root (../)
+app = Flask(__name__, template_folder='../', static_folder='../static')
+app.secret_key = 'supersecretkey'
 
 # Google Sheets Setup
-# IMPORTANT: You need to download your JSON key file and name it 'credentials.json'
-CREDENTIALS_FILE = 'credentials.json'
 # REPLACE THIS WITH YOUR FULL GOOGLE SHEET URL
 SHEET_URL = 'https://docs.google.com/spreadsheets/d/1fVlvAEUlCKCjBREy08O0OYcGbUc-BaKnHna21Ucm_Uk/edit?usp=sharing'
 
 def get_sheet():
     try:
-        # Modern gspread authentication (simpler and more robust)
-        # ensure credentials.json is in the same directory
-        client = gspread.service_account(filename=CREDENTIALS_FILE)
-        # Open by URL is much SAFER than by name (avoids typos/duplicates)
+        # 1. Try to get credentials from Environment Variable (Best for Vercel)
+        creds_json_str = os.environ.get('GOOGLE_CREDENTIALS')
+        
+        if creds_json_str:
+            print("Loading credentials from environment variable...")
+            creds_dict = json.loads(creds_json_str)
+            client = gspread.service_account_from_dict(creds_dict)
+        else:
+            # 2. Fallback to local file (Best for local development)
+            # Look for credentials.json in the project root (one directory up)
+            print("Loading credentials from local file...")
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            creds_file_path = os.path.join(base_dir, 'credentials.json')
+            
+            client = gspread.service_account(filename=creds_file_path)
+
+        # Open by URL is much SAFER than by name
         sheet = client.open_by_url(SHEET_URL).sheet1
         return sheet
     except Exception as e:
         print(f"Error connecting to Google Sheets: {e}")
-        # Print full traceback to see exactly what went wrong
         traceback.print_exc()
         return None
 
@@ -56,6 +69,6 @@ def submit():
 
         return redirect(url_for('index'))
 
+# For local development
 if __name__ == '__main__':
-    # Running on 0.0.0.0 to be accessible if needed, port 5000
     app.run(debug=True, host='0.0.0.0', port=5001)
