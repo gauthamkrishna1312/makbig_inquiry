@@ -7,7 +7,8 @@ import json
 
 # Adjust template_folder and static_folder because this file is inapi/
 # and templates/static are likely in the root (../)
-app = Flask(__name__, template_folder='../', static_folder='../static')
+# app = Flask(__name__, template_folder='../', static_folder='../static')
+app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
 # Google Sheets Setup
