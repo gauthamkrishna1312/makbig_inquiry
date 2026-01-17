@@ -9,7 +9,7 @@ import json
 # and templates/static are likely in the root (../)
 # Adjust template_folder and static_folder because this file is inapi/
 # and templates/static are likely in the root (../)
-app = Flask(__name__, template_folder='../', static_folder='../static')
+app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.secret_key = 'supersecretkey'
 
 # Google Sheets Setup
@@ -63,7 +63,7 @@ def submit():
         if sheet:
             try:
                 sheet.append_row([timestamp, fullname, phone, qualification])
-                flash('Application Submitted Successfully!', 'success')
+                flash('Application Submitted Successfully!<br> Link to discord: <a href="https://discord.gg/4j528888" target="_blank" style="color: #4ade80; text-decoration: underline;">Join Discord</a>', 'success')
             except Exception as e:
                 flash(f'An error occurred: {str(e)}', 'error')
         else:

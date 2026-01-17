@@ -35,7 +35,7 @@
             {% for category, message in messages %}
             <div class="status-message {{ category }}" style="display: flex; opacity: 1; transform: translateY(0);">
                 <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
-                <span>{{ message }}</span>
+                <span>{{ message | safe }}</span>
             </div>
             {% endfor %}
             {% endif %}
